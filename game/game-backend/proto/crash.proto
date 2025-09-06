@@ -1,0 +1,100 @@
+syntax = "proto3";
+
+package crash;
+
+option go_package = "game-backend/proto";
+
+// 游戏状态枚举
+enum GameState {
+  WAITING = 0;  // 等待中
+  PLAYING = 1;  // 游戏中
+  CRASHED = 2;  // 已崩盘
+}
+
+// 游戏状态更新消息
+message GameStatusUpdate {
+  string game_id = 1;           // 游戏ID
+  GameState state = 2;          // 游戏状态
+  double current_multiplier = 3; // 当前倍数
+  int32 players_count = 4;      // 玩家数量
+  int32 next_round_in = 5;      // 下轮开始倒计时(秒)
+  int64 server_time = 6;        // 服务器时间戳
+}
+
+// 玩家下注消息
+message PlayerBet {
+  string bet_id = 1;           // 下注ID
+  int64 user_id = 2;           // 用户ID
+  double amount = 3;           // 下注金额
+  double auto_cashout = 4;     // 自动止盈倍数(0表示手动)
+  int64 timestamp = 5;         // 时间戳
+}
+
+// 游戏开始消息
+message GameStart {
+  string round_id = 1;         // 轮次ID
+  int32 players_count = 2;     // 玩家数量
+  double total_bet_amount = 3; // 总下注金额
+  int64 start_time = 4;        // 开始时间
+}
+
+// 游戏结束消息
+message GameEnd {
+  string round_id = 1;         // 轮次ID
+  double final_multiplier = 2; // 最终倍数
+  int32 winners_count = 3;     // 获胜者数量
+  double total_payout = 4;     // 总赔付金额
+  int64 end_time = 5;          // 结束时间
+}
+
+// 玩家止盈消息
+message PlayerCashout {
+  string bet_id = 1;           // 下注ID
+  int64 user_id = 2;           // 用户ID
+  double multiplier = 3;       // 止盈倍数
+  double payout = 4;           // 赔付金额
+  int64 timestamp = 5;         // 时间戳
+}
+
+// 排行榜条目
+message LeaderboardEntry {
+  int64 user_id = 1;           // 用户ID
+  string username = 2;          // 用户名
+  double total_winnings = 3;   // 总盈利
+  double biggest_multiplier = 4; // 最大倍数
+  int32 rank = 5;              // 排名
+}
+
+// 排行榜更新消息
+message LeaderboardUpdate {
+  repeated LeaderboardEntry entries = 1; // 排行榜条目列表
+  int64 update_time = 2;                 // 更新时间
+}
+
+// 系统通知消息
+message SystemNotification {
+  string type = 1;             // 通知类型: "info", "warning", "error"
+  string message = 2;          // 通知内容
+  int64 timestamp = 3;         // 时间戳
+}
+
+// WebSocket握手消息
+message HandshakeRequest {
+  string token = 1;            // JWT Token
+  string version = 2;          // 协议版本
+}
+
+// WebSocket握手响应
+message HandshakeResponse {
+  string status = 1;           // 状态: "success", "error"
+  int64 user_id = 2;           // 用户ID
+  int64 server_time = 3;       // 服务器时间
+  string message = 4;          // 错误信息(如果有)
+}
+
+// 通用响应消息
+message CommonResponse {
+  int32 code = 1;              // 响应码
+  string message = 2;          // 响应消息
+  string data = 3;             // 响应数据(JSON字符串)
+}
